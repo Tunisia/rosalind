@@ -3,19 +3,24 @@
 from bs4 import BeautifulSoup
 import urllib
 
-path = '/home/tunisia/Desktop/Project Euler/'
+path = '/home/tunisia/Projects/rosalind/'
 
-for probnum in range(1,444):
-    html = BeautifulSoup(urllib.urlopen('http://projecteuler.net/problem=%d' % probnum))
-    title = html.h2
-    title = title.get_text().replace('/','_')
-    filename = 'prob%d - %s.py' % (probnum, title)
-    pathNname = path + filename
+html = BeautifulSoup(urllib.urlopen('http://rosalind.info/problems/list-view/'))
+
+tr_all = html.find_all('tr')
+probnum = 0
+url_base = 'http://www.rosalind.info'
+
+for tr in tr_all[1:]:
+    probnum += 1
+    td =  tr.find_all('td')
+    abbrev = td[0].string
+    title = td[1].a.string[:-2].rstrip().replace('\n','')
+    filename = 'prob%d_%s - %s.py' % (probnum,abbrev,title)
+    pathNname = path+filename
+    url = url_base + td[1].a['href']
+    shebang = '#!/usr/bin/python\n\n'
     
-    task = html.find('div', attrs = {'class' : 'problem_content'})
-    task = task.get_text().strip().split('\n')
-    task = '\n'.join(['#' + line for line in task])
-    
-    file = open(pathNname,'w')
-    file.write('#!/usr/bin/python\n\n' + task)
-    file.close()
+    myfile = open(pathNname,'w')
+    myfile.write(shebang + '# ' + url)
+    myfile.close()
